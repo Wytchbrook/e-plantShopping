@@ -1,63 +1,25 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { removeItem, updateQuantity } from "./CartSlice";
-import "./CartItem.css";
+import { createSlice } from "@reduxjs/toolkit";
 
-const CartItem = ({ onContinueShopping }) => {
-  const cartItems = useSelector((state) => state.cart.items);
-  const totalCost = useSelector((state) => 
-    state.cart.items.reduce((total, item) => total + parseFloat(item.cost.substring(1)) * item.quantity, 0)
-  );
-  const dispatch = useDispatch();
-
-  // Checkout placeholder function
-  const handleCheckoutShopping = () => {
-    alert("Functionality to be added for future reference");
-  };
-
-  return (
-    <div className="cart-container">
-      <h2>Your Cart</h2>
-      
-      {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <div>
-          {cartItems.map((item, index) => (
-            <div key={index} className="cart-item">
-              <img src={item.image} alt={item.name} className="cart-item-image" />
-              <div>
-                <h3>{item.name}</h3>
-                <p>{item.description}</p>
-                <p>Price: {item.cost}</p>
-                <div className="cart-actions">
-                  <button onClick={() => dispatch(removeItem(item.id))}>Remove</button>
-                  
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) =>
-                      dispatch(updateQuantity({ id: item.id, quantity: Number(e.target.value) }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-          <h3 className="total-cost">Total Cost: ${totalCost.toFixed(2)}</h3>
-        </div>
-      )}
-
-      <button onClick={onContinueShopping} className="continue-shopping">
-        Continue Shopping
-      </button>
-
-      <button onClick={handleCheckoutShopping} className="checkout-btn">
-        Checkout
-      </button>
-    </div>
-  );
+const initialState = {
+  items: [],
 };
 
-export default CartItem;
+const cartSlice = createSlice({
+  name: "cart",
+  initialState,
+  reducers: {
+updateQuantity: (state, action) => {
+             const { id, quantity } = action.payload;
+  const item = state.items.find((item) => item.id === id);
+      if (item) {
+        item.quantity = quantity;
+      }
+    },
+    removeItem: (state, action) => {
+      state.items = state.items.filter((item) => item.id !== action.payload);
+    },
+  },
+});
+
+export const { updateQuantity, removeItem } = cartSlice.actions;
+export default cartSlice.reducer;
